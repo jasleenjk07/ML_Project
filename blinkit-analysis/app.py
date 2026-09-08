@@ -1,12 +1,26 @@
+from pathlib import Path
+
 import streamlit as st
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
 import plotly.express as px
-import plotly.graph_objects as go
-from datetime import datetime
 from prediction_model import product_demand_prediction_app
+
+BASE_DIR = Path(__file__).resolve().parent
+DATA_DIR = BASE_DIR.parent / "blink-it"
+
+
+def resolve_csv(filename: str) -> Path:
+    """Prefer blink-it/, fall back to the app directory for local copies."""
+    primary = DATA_DIR / filename
+    if primary.exists():
+        return primary
+    fallback = BASE_DIR / filename
+    if fallback.exists():
+        return fallback
+    raise FileNotFoundError(
+        f"Missing {filename}. Expected at {primary} (or {fallback})."
+    )
 
 
 st.set_page_config(
@@ -27,15 +41,15 @@ st.markdown("""
 def load_data():
     with st.spinner('Loading data... This might take a moment.'):
         try:
-            products = pd.read_csv('../blink-it/blinkit_products.csv')
-            orders = pd.read_csv('../blink-it/blinkit_orders.csv')
-            order_items = pd.read_csv('../blink-it/blinkit_order_items.csv')
-            customers = pd.read_csv('../blink-it/blinkit_customers.csv')
-            feedback = pd.read_csv('../blink-it/blinkit_customer_feedback.csv')
-            delivery = pd.read_csv('../blink-it/blinkit_delivery_performance.csv')
-            inventory = pd.read_csv('../blink-it/blinkit_inventoryNew.csv')
-            marketing = pd.read_csv('../blink-it/blinkit_marketing_performance.csv')
-            
+            products = pd.read_csv(resolve_csv('blinkit_products.csv'))
+            orders = pd.read_csv(resolve_csv('blinkit_orders.csv'))
+            order_items = pd.read_csv(resolve_csv('blinkit_order_items.csv'))
+            customers = pd.read_csv(resolve_csv('blinkit_customers.csv'))
+            feedback = pd.read_csv(resolve_csv('blinkit_customer_feedback.csv'))
+            delivery = pd.read_csv(resolve_csv('blinkit_delivery_performance.csv'))
+            inventory = pd.read_csv(resolve_csv('blinkit_inventoryNew.csv'))
+            marketing = pd.read_csv(resolve_csv('blinkit_marketing_performance.csv'))
+
             return {
                 'products': products,
                 'orders': orders,
